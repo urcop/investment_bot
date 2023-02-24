@@ -23,8 +23,6 @@ services:
     ports:
       - "${DATABASE_PORT}:5432"
     restart: unless-stopped
-    logging:
-      driver: none
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
