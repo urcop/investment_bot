@@ -1,4 +1,5 @@
 from aiogram import types, Dispatcher
+from aiogram.dispatcher.filters import CommandStart
 
 from tg_bot.keyboards.reply.main_menu import main_menu
 
@@ -12,4 +13,4 @@ async def start(message: types.Message):
 
 
 def register_start(dp: Dispatcher):
-    dp.register_message_handler(start, state='*')
+    dp.register_message_handler(start, CommandStart)
