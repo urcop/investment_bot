@@ -12,13 +12,18 @@ from tg_bot.models.users import User
 
 
 async def generate_profile_text(user_id: int, username: str, session_maker: sessionmaker):
+    status_name = 'Отсутствует'
     balance = await User.get_balance(user_id=user_id, session_maker=session_maker)
+    now = int(datetime.datetime.now().timestamp())
+    status_id = await Status2User.get_user(user_id=user_id, time_now=now, session_maker=session_maker)
+    if status_id:
+        status_name = (await Status.get_name_by_id(status_id=status_id, session_maker=session_maker)).upper()
     text = f"""
 🔑 ID: {user_id}
 👤 Никнейм: {f'@{username}' if username else 'Отсутствует'}
 💵 Баланс: {balance}
 💸 Инвестиции: Отсутствуют
-⏰ Статус: Отсутствует
+⏰ Статус: <strong>{status_name}</strong>
         """
     return text
 
