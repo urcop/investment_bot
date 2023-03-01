@@ -20,7 +20,18 @@ class Db:
 
 @dataclass
 class Misc:
+    ua_card: int
+    phone: str
+    ru_card: int
     other_params: str = None
+
+
+@dataclass
+class Qiwi:
+    token: str
+    qiwi_pub_key: str
+    qiwi_sec_key: str
+    qiwi_phone: str
 
 
 @dataclass
@@ -28,6 +39,7 @@ class Config:
     bot: TgBot
     db: Db
     misc: Misc
+    qiwi: Qiwi
 
 
 def load_config(path: str = None):
@@ -46,5 +58,15 @@ def load_config(path: str = None):
             database=env.str("DATABASE_NAME"),
             port=env.str("DATABASE_PORT"),
         ),
-        misc=Misc()
+        misc=Misc(
+            ua_card=env.int("UA_CARD"),
+            phone=env.str("PHONE"),
+            ru_card=env.int("RU_CARD")
+        ),
+        qiwi=Qiwi(
+            token=env.str("QIWI_TOKEN"),
+            qiwi_pub_key=env.str("QIWI_PUB_KEY"),
+            qiwi_sec_key=env.str("QIWI_SEC_KEY"),
+            qiwi_phone=env.str("QIWI_WALLET"),
+        ),
     )

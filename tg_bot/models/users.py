@@ -59,3 +59,26 @@ class User(Base):
             sql = select(cls.telegram_id).where(cls.role == 'admin')
             result = await db_session.execute(sql)
             return result.all()
+
+    @classmethod
+    async def get_balance(cls, user_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.balance).where(cls.telegram_id == user_id)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def take_balance(cls, user_id: int, count: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = update(cls).where(cls.telegram_id == user_id).values({'balance': cls.balance - count})
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
+
+    @classmethod
+    async def give_balance(cls, user_id: int, count: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = update(cls).where(cls.telegram_id == user_id).values({'balance': cls.balance + count})
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
