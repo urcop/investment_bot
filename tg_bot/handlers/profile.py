@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from tg_bot.keyboards.inline.profile import status_keyboard, status_callback
 from tg_bot.keyboards.inline.status import status_choice_keyboard, status_choice_callback, selection_selected_status, \
     select_selected_status, status_period, status_period_callback
+from tg_bot.models.items import Item2User
 from tg_bot.models.status import Status, Status2User
 from tg_bot.models.users import User
 
@@ -18,11 +19,12 @@ async def generate_profile_text(user_id: int, username: str, session_maker: sess
     status_id = await Status2User.get_user(user_id=user_id, time_now=now, session_maker=session_maker)
     if status_id:
         status_name = (await Status.get_name_by_id(status_id=status_id, session_maker=session_maker)).upper()
+    investments = len(await Item2User.get_all_user_items(user_id=user_id, session_maker=session_maker))
     text = f"""
 🔑 ID: {user_id}
 👤 Никнейм: {f'@{username}' if username else 'Отсутствует'}
 💵 Баланс: {balance}
-💸 Инвестиции: Отсутствуют
+💸 Инвестиции: {investments}
 ⏰ Статус: <strong>{status_name}</strong>
         """
     return text

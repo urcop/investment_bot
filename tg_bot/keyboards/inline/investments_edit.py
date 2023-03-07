@@ -8,7 +8,7 @@ delete_confirm_callback = CallbackData('delete_confirm', 'answer', 'invest_id')
 
 
 async def generate_invest_edit_items_keyboard(_items):
-    keyboard = InlineKeyboardMarkup(row_width=1)
+    keyboard = InlineKeyboardMarkup(row_width=2)
     for item in _items:
         invest_id = item[0]
         keyboard.insert(InlineKeyboardButton(text=_items.index(item) + 1,
@@ -17,7 +17,7 @@ async def generate_invest_edit_items_keyboard(_items):
 
 
 async def generate_invest_view_items_keyboard(_items):
-    keyboard = InlineKeyboardMarkup(row_width=1)
+    keyboard = InlineKeyboardMarkup(row_width=2)
     for item in _items:
         invest_id = item[0]
         keyboard.insert(InlineKeyboardButton(text=_items.index(item) + 1,
