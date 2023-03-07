@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, select, insert
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, select, insert, BigInteger
 from sqlalchemy.orm import sessionmaker
 
 from tg_bot.services.db_base import Base
@@ -44,13 +45,17 @@ class Status2User(Base):
     __tablename__ = 'status2user'
     id = Column(Integer, primary_key=True)
     status_id = Column(Integer)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     end_time = Column(Integer)
+    date_unix = Column(Integer)
+    admin_date = Column(String)
 
     @classmethod
-    async def add_status_to_user(cls, user_id: int, status_id: int, end_time: int, session_maker: sessionmaker):
+    async def add_status_to_user(cls, user_id: int, status_id: int, now_date: int, end_time: int,
+                                 session_maker: sessionmaker):
         async with session_maker() as db_session:
-            sql = insert(cls).values(user_id=user_id, status_id=status_id, end_time=end_time)
+            sql = insert(cls).values(user_id=user_id, status_id=status_id, end_time=end_time, date_unix=int(now_date),
+                                     admin_date=(datetime.fromtimestamp(now_date)).strftime('%d.%m.%Y'))
             result = await db_session.execute(sql)
             await db_session.commit()
             return result

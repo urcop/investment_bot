@@ -18,6 +18,8 @@ services:
   db:
     image: postgres
     container_name: "${BOT_CONTAINER_NAME}_DB"
+    logging:
+      driver: none
     volumes:
       - ./data:/var/lib/postgresql/data/
     ports:

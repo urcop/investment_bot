@@ -61,7 +61,7 @@ async def status(call: CallbackQuery):
         datetime_now_time = datetime.datetime.fromtimestamp(now)
         timer = str(datetime_end_time - datetime_now_time).replace('days', 'дней').replace('day', 'день')
         text = [
-            f'✅ У вас приобретен статус {status_name}',
+            f'✅ У вас приобретен статус <strong>{status_name.upper()}</strong>',
             '🕑 Подписка заканчивается через',
             f'\t\t\t\t\t\t{timer}'
         ]
@@ -110,8 +110,9 @@ async def buy_status(call: CallbackQuery, callback_data: dict):
     user_balance = await User.get_balance(call.from_user.id, session_maker=session_maker)
     status_id = await Status.get_id_by_name(status_name=status, session_maker=session_maker)
     if user_balance >= price:
+        now = int(datetime.datetime.now().timestamp())
         await Status2User.add_status_to_user(user_id=call.from_user.id, status_id=status_id, end_time=int(time[period]),
-                                             session_maker=session_maker)
+                                             session_maker=session_maker, now_date=now)
         await User.take_balance(user_id=call.from_user.id, count=price, session_maker=session_maker)
         await call.message.edit_text(f'Вы успешно приобрели статус {status}')
     else:
