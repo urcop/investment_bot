@@ -111,8 +111,10 @@ async def choosing_an_item_quality(call: types.CallbackQuery, state: FSMContext,
 
 
 async def get_item_name(call: types.CallbackQuery, state: FSMContext, callback_data: dict):
+    session_maker = call.bot['db']
     async with state.proxy() as data:
         data['item'] = callback_data.get('name')
+        item_id = await Item.get_item_id(name=data['item'], session_maker=session_maker)
         if data['item'] == 'back':
             await CreateInvestment.quality.set()
             if data['type'] in (1, 2, 3, 4):
@@ -125,8 +127,16 @@ async def get_item_name(call: types.CallbackQuery, state: FSMContext, callback_d
                 await call.message.edit_text(f'Выберите качество {text[data["type"]]}',
                                              reply_markup=quality_keyboard)
         else:
-            await call.message.edit_text('Введите за сколько вы покупали предмет')
-            await CreateInvestment.price.set()
+            is_exists = await Item2User.is_exist(item_id=item_id, user_id=call.from_user.id,
+                                                 session_maker=session_maker)
+            if not is_exists:
+                await call.message.edit_text('Введите за сколько вы покупали предмет')
+                await CreateInvestment.price.set()
+            else:
+                await state.finish()
+                await call.message.edit_text(
+                    '❗В вашем портфеле уже есть такой лот, вы можете добавить новый или изменить существующий')
+
 
 
 async def get_item_price(message: types.Message, state: FSMContext):
@@ -146,19 +156,13 @@ async def get_item_count(message: types.Message, state: FSMContext):
         try:
             data['count'] = float(message.text)
             item_id = await Item.get_item_id(name=data['item'], session_maker=session_maker)
-            is_exists = await Item2User.is_exist(item_id=item_id, user_id=message.from_user.id,
-                                                 session_maker=session_maker)
-            if not is_exists:
-                now = int(datetime.now().timestamp())
-                await Item2User.add_item_to_user(item_id=item_id, user_id=message.from_user.id,
-                                                 price=float(data['price']),
-                                                 count=int(data['count']), session_maker=session_maker, now_date=now)
-                await state.finish()
-                await message.answer('🎉 Предмет успешно добавлен в портфель')
-            else:
-                await state.finish()
-                await message.answer(
-                    '❗В вашем портфеле уже есть такой лот, вы можете добавить новый или изменить существующий')
+
+            now = int(datetime.now().timestamp())
+            await Item2User.add_item_to_user(item_id=item_id, user_id=message.from_user.id,
+                                             price=float(data['price']),
+                                             count=int(data['count']), session_maker=session_maker, now_date=now)
+            await state.finish()
+            await message.answer('🎉 Предмет успешно добавлен в портфель')
         except ValueError:
             await message.answer('Введите число')
             return

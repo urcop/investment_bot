@@ -6,6 +6,7 @@ from aiogram.dispatcher.filters import Command
 from tg_bot.handlers.portfolio import generate_edit_portfolio_text
 from tg_bot.keyboards.reply.main_menu import main_menu
 from tg_bot.models.items import Item, Item2User
+from tg_bot.models.queue import ChangeQueue
 from tg_bot.models.status import Status2User, Status
 from tg_bot.models.users import User
 from tg_bot.models.workers import Worker
@@ -71,7 +72,7 @@ async def info(message: types.Message):
 📅 Дата регистрации: {user_reg_date}
 🔑 ID: {user_id}
 💸 Инвестиции: {len(investments) if investments else 'отсутствуют'}
-⏰ Статус: {status_name} Действительный до {status_expired} 
+⏰ Статус: {status_name if status_name == 'Отсутствует' else status_name + ' Действителен до ' + status_expired} 
     """
     await message.answer(text)
 
@@ -103,11 +104,17 @@ async def add_item(message: types.Message):
     params = message.text.split(' ')
     params.pop(0)
     item_type = int(params[0])
-    category = int(params[1])
-    quality = int(params[2])
-    name = params[3]
+    params.pop(0)
+    category = int(params[0])
+    params.pop(0)
+    quality = int(params[0])
+    params.pop(0)
+
+    name = ' '.join(params)
 
     await Item.add_item(type=item_type, category=category, quality=quality, name=name, session_maker=session_maker)
+    item_id = await Item.get_item_id(name=name, session_maker=session_maker)
+    await ChangeQueue.add_to_queue(item_id=item_id, session_maker=session_maker)
     await message.answer(f'Предмет {name} успешно добавлен')
 
 
@@ -116,8 +123,11 @@ async def delete_item(message: types.Message):
     params = message.text.split(' ')
     params.pop(0)
     item_type = int(params[0])
-    category = int(params[1])
-    name = params[2]
+    params.pop(0)
+    category = int(params[0])
+    params.pop(0)
+
+    name = ' '.join(params)
 
     await Item.delete_item(item_type=item_type, name=name, category=category, session_maker=session_maker)
     await message.answer(f'Предмет {name} успешно удален')

@@ -29,7 +29,7 @@ class Item(Base):
         async with session_maker() as db_session:
             last_id = await cls._get_last_id(session_maker)
             sql = insert(cls).values(id=last_id + 1 if last_id else 1, name=name, type=type, category=category,
-                                     quality=quality)
+                                     quality=quality, price=0)
             result = await db_session.execute(sql)
             await db_session.commit()
             return result

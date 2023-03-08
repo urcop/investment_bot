@@ -5,15 +5,13 @@ main_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton('Портфель 💼'),
+            KeyboardButton('Пополнить баланс 💵'),
             KeyboardButton('Профиль 📝'),
         ],
         [
             KeyboardButton('Тех.Поддержка 👤'),
         ],
-        [
-            KeyboardButton('Пополнить баланс 💵'),
 
-        ]
     ]
 )
 
