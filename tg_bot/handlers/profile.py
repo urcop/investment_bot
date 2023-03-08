@@ -19,12 +19,12 @@ async def generate_profile_text(user_id: int, username: str, session_maker: sess
     status_id = await Status2User.get_user(user_id=user_id, time_now=now, session_maker=session_maker)
     if status_id:
         status_name = (await Status.get_name_by_id(status_id=status_id, session_maker=session_maker)).upper()
-    investments = len(await Item2User.get_all_user_items(user_id=user_id, session_maker=session_maker))
+    investments = await Item2User.get_all_user_items(user_id=user_id, session_maker=session_maker)
     text = f"""
 🔑 ID: {user_id}
 👤 Никнейм: {f'@{username}' if username else 'Отсутствует'}
 💵 Баланс: {balance}
-💸 Инвестиции: {investments}
+💸 Инвестиции: {len(investments) if investments else 'Отсутствуют'}
 ⏰ Статус: <strong>{status_name}</strong>
         """
     return text
@@ -117,6 +117,9 @@ async def buy_status(call: CallbackQuery, callback_data: dict):
                                              session_maker=session_maker, now_date=now)
         await User.take_balance(user_id=call.from_user.id, count=price, session_maker=session_maker)
         await call.message.edit_text(f'Вы успешно приобрели статус {status}')
+        for admin in await User.get_admins(session_maker=session_maker):
+            await call.bot.send_message(chat_id=int(admin[0]),
+                                        text=f'Пользователь {call.from_user.id} купил {status} на {period} месяц(а)')
     else:
         await call.message.answer('У вас недостаточно средств')
         return

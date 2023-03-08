@@ -35,6 +35,29 @@ class Item(Base):
             return result
 
     @classmethod
+    async def get_all_id(cls, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.id)
+            result = await db_session.execute(sql)
+            return result.all()
+
+    @classmethod
+    async def delete_item(cls, item_type: int, category: int, name: str, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = delete(cls).where(and_(cls.type == item_type, cls.category == category, cls.name == name))
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
+
+    @classmethod
+    async def update_price(cls, item_id: int, value: float, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = update(cls).where(cls.id == item_id).values({'price': value})
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
+
+    @classmethod
     async def find_all_items(cls, type: int, category: int, quality: int, session_maker: sessionmaker):
         async with session_maker() as db_session:
             sql = select(cls.name).where(and_(cls.type == type, cls.category == category, cls.quality == quality))
@@ -142,5 +165,15 @@ class Item2User(Base):
     async def is_exist(cls, user_id: int, item_id: int, session_maker: sessionmaker):
         async with session_maker() as db_session:
             sql = select(cls.id).where(and_(cls.item_id == item_id, cls.user_id == user_id))
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_add_portfolio_by_date(cls, date: str, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            if date == 'all':
+                sql = select(func.count(cls.id))
+            else:
+                sql = select(func.count(cls.id)).where(cls.admin_date == date)
             result = await db_session.execute(sql)
             return result.scalar()

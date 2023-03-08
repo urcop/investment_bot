@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Column, String, Integer, select, insert, update
+from sqlalchemy import BigInteger, Column, String, Integer, select, insert, update, func
 from sqlalchemy.orm import sessionmaker
 
 from tg_bot.services.db_base import Base
@@ -61,6 +61,13 @@ class User(Base):
             return result.all()
 
     @classmethod
+    async def get_workers(cls, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.telegram_id).where(cls.role == 'worker')
+            result = await db_session.execute(sql)
+            return result.all()
+
+    @classmethod
     async def get_balance(cls, user_id: int, session_maker: sessionmaker):
         async with session_maker() as db_session:
             sql = select(cls.balance).where(cls.telegram_id == user_id)
@@ -82,3 +89,35 @@ class User(Base):
             result = await db_session.execute(sql)
             await db_session.commit()
             return result
+
+    @classmethod
+    async def set_role(cls, user_id: int, role: str, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = update(cls).where(user_id == cls.telegram_id).values({'role': role})
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
+
+    @classmethod
+    async def get_users_by_reg_date(cls, date: str, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            if date == 'all':
+                sql = select(func.count(cls.telegram_id))
+            else:
+                sql = select(func.count(cls.telegram_id)).where(cls.reg_date == date)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_reg_date(cls, user_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.reg_date).where(user_id == cls.telegram_id)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_all_users(cls, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.telegram_id)
+            request = await db_session.execute(sql)
+            return request.all()

@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, select, insert, BigInteger
+
+from sqlalchemy import Column, Integer, String, select, insert, BigInteger, func, delete
 from sqlalchemy.orm import sessionmaker
 
 from tg_bot.services.db_base import Base
@@ -61,6 +62,14 @@ class Status2User(Base):
             return result
 
     @classmethod
+    async def delete_user_status(cls, user_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = delete(cls).where(cls.user_id == user_id)
+            result = await db_session.execute(sql)
+            await db_session.commit()
+            return result
+
+    @classmethod
     async def get_user(cls, user_id: int, time_now: int, session_maker: sessionmaker):
         async with session_maker() as db_session:
             sql = select(cls.status_id).where(cls.user_id == user_id, cls.end_time > time_now)
@@ -71,5 +80,15 @@ class Status2User(Base):
     async def get_end_time(cls, user_id: int, time_now: int, session_maker: sessionmaker):
         async with session_maker() as db_session:
             sql = select(cls.end_time).where(cls.user_id == user_id, cls.end_time > time_now)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_buy_status_by_date(cls, date: str, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            if date == 'all':
+                sql = select(func.count(cls.id))
+            else:
+                sql = select(func.count(cls.id)).where(cls.admin_date == date)
             result = await db_session.execute(sql)
             return result.scalar()

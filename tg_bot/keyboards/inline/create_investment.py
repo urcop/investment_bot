@@ -45,16 +45,16 @@ quality_keyboard = InlineKeyboardMarkup(
     row_width=1,
     inline_keyboard=[
         [
-            InlineKeyboardButton('Arcane', callback_data=item_quality_callback.new(1))
+            InlineKeyboardButton('Arcane', callback_data=item_quality_callback.new(4))
         ],
         [
-            InlineKeyboardButton('Legendary', callback_data=item_quality_callback.new(2))
+            InlineKeyboardButton('Legendary', callback_data=item_quality_callback.new(3))
         ],
         [
-            InlineKeyboardButton('Epic', callback_data=item_quality_callback.new(3))
+            InlineKeyboardButton('Epic', callback_data=item_quality_callback.new(2))
         ],
         [
-            InlineKeyboardButton('Rare', callback_data=item_quality_callback.new(4))
+            InlineKeyboardButton('Rare', callback_data=item_quality_callback.new(1))
         ],
         [
             InlineKeyboardButton('Назад', callback_data=item_quality_callback.new('back'))

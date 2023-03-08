@@ -33,6 +33,12 @@ class Qiwi:
     qiwi_sec_key: str
     qiwi_phone: str
 
+@dataclass
+class Redis:
+    host: str
+    password: str
+    port: int
+
 
 @dataclass
 class Config:
@@ -40,6 +46,7 @@ class Config:
     db: Db
     misc: Misc
     qiwi: Qiwi
+    redis: Redis
 
 
 def load_config(path: str = None):
@@ -69,4 +76,9 @@ def load_config(path: str = None):
             qiwi_sec_key=env.str("QIWI_SEC_KEY"),
             qiwi_phone=env.str("QIWI_WALLET"),
         ),
+        redis=Redis(
+            host=env.str("REDIS_HOST"),
+            password=env.str("REDIS_PASSWORD"),
+            port=env.str("REDIS_PORT"),
+        )
     )
