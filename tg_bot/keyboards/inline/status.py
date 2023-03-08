@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.callback_data import CallbackData
 
+change_status = CallbackData('edit_status', 'confirm')
 status_choice_callback = CallbackData('status_choice', 'status')
 select_selected_status = CallbackData('select_selected', 'action', 'status')
 status_period_callback = CallbackData('status_period', 'status', 'period', 'price')
@@ -55,3 +56,11 @@ async def status_period(status):
         ]
     )
     return keyboard
+
+edit_status_keyboard = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Обновить статус', callback_data=change_status.new('yes'))
+        ]
+    ]
+)
