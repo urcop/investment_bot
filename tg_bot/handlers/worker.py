@@ -44,12 +44,34 @@ async def take(message: types.Message):
     queue_id = all_in_queue[random_num][0]
     item_id = await ChangeQueue.get_item_id(queue_id=int(queue_id), session_maker=session_maker)
     item_name = await Item.get_item_name(item_id=int(item_id), session_maker=session_maker)
+    item_type = await Item.get_item_type(item_id=int(item_id), session_maker=session_maker)
+    item_category = await Item.get_item_category(item_id=int(item_id), session_maker=session_maker)
+    item_quality = await Item.get_item_quality(item_id=int(item_id), session_maker=session_maker)
     item_price = await Item.get_item_price(item_id=int(item_id), session_maker=session_maker)
+
+    item_types = {
+        1: 'Оружие',
+        2: 'Стикер',
+        3: 'Брелок',
+        4: 'Графит',
+    }
+
+    categories = {
+        0: '',
+        1: 'Regular',
+        2: 'StatTrack'
+    }
+    qualities = {
+        1: 'Rare',
+        2: 'Epic',
+        3: 'Legendary',
+        4: 'Arcane'
+    }
 
     await ChangeQueue.set_worker(queue_id=int(queue_id), worker_id=message.from_user.id, session_maker=session_maker)
 
     text = f"""
-🔑 Предмет: <code>{item_name}</code>
+🔑 Предмет: {item_types[item_type]} {categories[item_category]} <code>{item_name}</code> {qualities[item_quality]}
 💵 Текущая цена: <strong>{item_price}</strong>
 
 Нажмите на кнопку принять и введите новую цену предмета.
@@ -99,6 +121,7 @@ async def set_price_accept(call: types.CallbackQuery, state: FSMContext, callbac
     else:
         await ChangeQueue.set_worker(queue_id=queue_id, worker_id=0, session_maker=session_maker)
         await call.message.edit_text('Отменено, напишите /take, чтобы взять другой товар')
+        await state.set_state('worker_in_job')
 
 
 def register_worker(dp: Dispatcher):

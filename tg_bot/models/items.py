@@ -85,6 +85,27 @@ class Item(Base):
             result = await db_session.execute(sql)
             return result.scalar()
 
+    @classmethod
+    async def get_item_type(cls, item_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.type).where(cls.id == item_id)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_item_category(cls, item_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.category).where(cls.id == item_id)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
+    @classmethod
+    async def get_item_quality(cls, item_id: int, session_maker: sessionmaker):
+        async with session_maker() as db_session:
+            sql = select(cls.quality).where(cls.id == item_id)
+            result = await db_session.execute(sql)
+            return result.scalar()
+
 
 class Item2User(Base):
     __tablename__ = 'item2user'
