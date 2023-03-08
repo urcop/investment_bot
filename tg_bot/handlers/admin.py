@@ -170,6 +170,18 @@ async def check_portfel(message: types.Message):
     await message.answer('\n'.join(text))
 
 
+async def give_balance(message: types.Message):
+    session_maker = message.bot['db']
+    params = message.text.split(' ')
+    params.pop(0)
+    user_id = int(params[0])
+    value = int(params[1])
+
+    await User.give_balance(user_id=user_id, count=value, session_maker=session_maker)
+    await message.answer(f'Выдано {value} пользователю {user_id}')
+    await message.bot.send_message(user_id, f'Вам выдано {value} р.')
+
+
 def register_admin(dp: Dispatcher):
     dp.register_message_handler(stat, Command(['stat']), is_admin=True)
     dp.register_message_handler(broadcaster, text_startswith='/ads', content_types=['text', 'photo'], is_admin=True)
@@ -182,3 +194,4 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(add_status, Command(['vip', 'premium']), is_admin=True)
     dp.register_message_handler(delete_status, Command(['dvip', 'dpremium']), is_admin=True)
     dp.register_message_handler(check_portfel, Command(['portfel']), is_admin=True)
+    dp.register_message_handler(give_balance, Command(['givem']), is_admin=True)
