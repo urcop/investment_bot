@@ -40,9 +40,7 @@ async def take(message: types.Message):
         await message.answer('Нет предметов в очереди')
         return
 
-    random_num = random.randint(0, len(all_in_queue) - 1)
-    queue_id = all_in_queue[random_num][0]
-    item_id = await ChangeQueue.get_item_id(queue_id=int(queue_id), session_maker=session_maker)
+    item_id = await ChangeQueue.get_item_id(queue_id=int(all_in_queue[0][0]), session_maker=session_maker)
     item_name = await Item.get_item_name(item_id=int(item_id), session_maker=session_maker)
     item_type = await Item.get_item_type(item_id=int(item_id), session_maker=session_maker)
     item_category = await Item.get_item_category(item_id=int(item_id), session_maker=session_maker)
@@ -68,7 +66,7 @@ async def take(message: types.Message):
         4: 'Arcane'
     }
 
-    await ChangeQueue.set_worker(queue_id=int(queue_id), worker_id=message.from_user.id, session_maker=session_maker)
+    await ChangeQueue.set_worker(queue_id=int(all_in_queue[0][0]), worker_id=message.from_user.id, session_maker=session_maker)
 
     text = f"""
 🔑 Предмет: {item_types[item_type]} {categories[item_category]} <code>{item_name}</code> {qualities[item_quality]}
@@ -76,7 +74,7 @@ async def take(message: types.Message):
 
 Нажмите на кнопку принять и введите новую цену предмета.
     """
-    await message.answer(text, reply_markup=await generate_item_keyboard(int(item_id), queue_id))
+    await message.answer(text, reply_markup=await generate_item_keyboard(int(item_id), all_in_queue[0][0]))
 
 
 async def accept_work(call: types.CallbackQuery, callback_data: dict, state: FSMContext):

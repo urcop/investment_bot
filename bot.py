@@ -65,7 +65,7 @@ async def main():
     scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
 
     scheduler.add_job(update_queue, trigger='cron', day='*',
-                      hour='*', minute=0, kwargs={'bot': bot})
+                      hour='*/3', minute=0, kwargs={'bot': bot})
 
     scheduler.add_job(check_sub, trigger='cron', day='*',
                       hour='*', minute=0, kwargs={'bot': bot})
