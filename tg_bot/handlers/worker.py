@@ -1,5 +1,3 @@
-import random
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
@@ -66,7 +64,8 @@ async def take(message: types.Message):
         4: 'Arcane'
     }
 
-    await ChangeQueue.set_worker(queue_id=int(all_in_queue[0][0]), worker_id=message.from_user.id, session_maker=session_maker)
+    await ChangeQueue.set_worker(queue_id=int(all_in_queue[0][0]), worker_id=message.from_user.id,
+                                 session_maker=session_maker)
 
     text = f"""
 🔑 Предмет: {item_types[item_type]} {categories[item_category]} <code>{item_name}</code> {qualities[item_quality]}

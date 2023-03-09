@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, select, insert, func, delete, update, BigInteger, asc
+from sqlalchemy import Column, Integer, select, insert, func, delete, update, BigInteger
 from sqlalchemy.orm import sessionmaker
 
 from tg_bot.models.items import Item
@@ -37,7 +37,8 @@ class ChangeQueue(Base):
     @classmethod
     async def get_all_queue(cls, session_maker: sessionmaker):
         async with session_maker() as db_session:
-            sql = select(cls.id).where(cls.active_worker == 0).join(Item, Item.id == cls.item_id).order_by(Item.name)
+            sql = select(cls.id).where(cls.active_worker == 0).join(Item, Item.id == cls.item_id).order_by(Item.name,
+                                                                                                           Item.type)
             result = await db_session.execute(sql)
             return result.all()
 
